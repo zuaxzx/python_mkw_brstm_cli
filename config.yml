@@ -1,0 +1,25 @@
+# Tool dependencies path
+tools:
+  vg_audio_cli: ./tools/VGAudioCli.exe
+  brstm_patcher: ./tools/QuickBRSTMPatcher.exe
+
+tracks:
+  # Abreviations for brstm track names
+  abrev:
+    normal: "n"
+    final: "f"
+  
+  # Outfile mapping of all tracks
+  brstm_track_mapping: {
+    "lc": "n_circuit32_*"
+  }
+
+  # Outfile mapping of all misc sounds
+  brstm_misc_mapping: {
+
+  }
+
+  # List of multi channel tracks
+  multi_channel: [
+    "bcwii"
+  ]
