@@ -1,7 +1,8 @@
 import argparse
+import pathlib
 
 from config_parser import ConfigParser
-
+from yt_download import convert_mp4_to_wav, dl_mp4_from_yt
 from audio_parser import AudioFileParser
 
 def init_config() -> ConfigParser:
@@ -22,6 +23,18 @@ def run(args: argparse.Namespace) -> None:
   normal_track_abrev: str = config_parser.get("tracks.abrev.normal")
   final_track_abrev: str = config_parser.get("tracks.abrev.final")
   
+  out_dir = config_parser.get("output.dir")
+  temp_dir = config_parser.get("output.temp_dir")
+  
+  if args.type == "url":
+    temp_mp4 = pathlib.Path(temp_dir).joinpath("download.mp4")
+    wav_file = pathlib.Path(temp_dir).joinpath("download.wav")
+    dl_mp4_from_yt(args.audio, temp_mp4)
+    convert_mp4_to_wav(temp_mp4, wav_file)
+    temp_mp4.unlink()
+  else:
+    wav_file = args.audio
+  
   files: list[AudioFileParser] = []
   
   # Track (normal and final)
@@ -41,7 +54,7 @@ def run(args: argparse.Namespace) -> None:
     # Append normal lap audio
     files.append(
       AudioFileParser(
-        infile=args.wav_file,
+        infile=wav_file,
         outfile=brstm_file_n,
         speed_increase=args.speed,
         db_increase=args.db_increase,
@@ -55,7 +68,7 @@ def run(args: argparse.Namespace) -> None:
     # Append final lap audio
     files.append(
       AudioFileParser(
-        infile=args.wav_file,
+        infile=wav_file,
         outfile=brstm_file_f,
         speed_increase=args.fspeed,
         db_increase=args.db_increase,
@@ -77,7 +90,7 @@ def run(args: argparse.Namespace) -> None:
     # Append normal lap audio
     files.append(
       AudioFileParser(
-        infile=args.wav_file,
+        infile=wav_file,
         outfile=misc_file,
         speed_increase=args.speed,
         db_increase=args.db_increase,
@@ -92,8 +105,6 @@ def run(args: argparse.Namespace) -> None:
   else:
     raise KeyError(f"Given track {args.track} does not exist!")
   
-  out_dir = config_parser.get("output.dir")
-  temp_dir = config_parser.get("output.temp_dir")
   for audio_parser in files:
     # Convert audio
     audio_parser.convert(out_dir, temp_dir)
@@ -103,7 +114,9 @@ def main() -> None:
   parser = argparse.ArgumentParser()  
   
   parser.add_argument('track', type=str, help='Track to convert to')
-  parser.add_argument('wav_file', type=str, help='Input wav file')
+  parser.add_argument('type', type=str, choices=["wav", "url"], help='Audio type. Valid options: "wav", "url"')
+  parser.add_argument('audio', type=str, help='Input wav file or youtube url')
+  
   
   parser.add_argument('--db_increase', type=float, default=0.0, help='Increase of db for the wav/brstm', required=False)
   parser.add_argument('--cut_start', type=float, help='Time in seconds where to start [from frame 0]', required=False)
