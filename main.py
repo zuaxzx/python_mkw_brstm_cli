@@ -1,6 +1,4 @@
 import argparse
-import subprocess
-import pathlib
 
 from config_parser import ConfigParser
 
@@ -10,46 +8,73 @@ def init_config() -> ConfigParser:
   # Parse yaml config
   return ConfigParser("./config.yml")
 
-def run(container: list, args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> None:
   config_parser = init_config()
   
   # Define mapping dicts (2 mappings since tracks need normal and final)
   track_mapping = config_parser.get("tracks.brstm_track_mapping", dict)
   misc_mapping = config_parser.get("tracks.brstm_misc_mapping", dict)
   
+  # Get channel track mapping
+  channel_mapping = config_parser.get("tracks.multi_channel", dict)
+  
   # Get the track abrev for normal and final lap
   normal_track_abrev = config_parser.get("tracks.abrev.normal")
   final_track_abrev = config_parser.get("tracks.abrev.final")
   
-  track_abrev = args.track
-  outfiles = []
-  
-  # Track (normal and final)
-  if track_abrev in track_mapping:
-    brstm_file_n = f"{track_mapping.get(args.track).replace('*', normal_track_abrev)}.brstm"
-    brstm_file_f = f"{track_mapping.get(args.track).replace('*', final_track_abrev)}.brstm"
-    outfiles = [brstm_file_n, brstm_file_f]
-  
-  # Misc (normal)
-  elif track_abrev in misc_mapping:
-    misc_file = misc_mapping.get(args.track)
-    outfiles = [misc_file]
-  
-  # Not available
-  else:
-    raise KeyError(f"Given track {args.track} does not exist!")
-  
   files: list[AudioFileParser] = []
   
-  for outfile in outfiles:
+  # Track (normal and final)
+  if args.track in track_mapping:
+    # Get the outfile name (no ending since wav and brstm are needed)
+    brstm_file_n = track_mapping.get(args.track).replace('*', normal_track_abrev)
+    brstm_file_f = track_mapping.get(args.track).replace('*', final_track_abrev)
     
-    channels = 2
+    # Determine channels using the mapping
+    channels = channel_mapping.get(args.track, 2)
     
+    # Append normal lap audio
     files.append(
       AudioFileParser(
         infile=args.wav_file,
-        outfile=outfile,
-        speed_increase=1,
+        outfile=brstm_file_n,
+        speed_increase=args.speed,
+        db_increase=args.db_increase,
+        cut_offset_start=args.cut_start,
+        cut_offset_end=args.cut_end,
+        channels=channels,
+        brstm_patch_value=args.brstm_patch
+      )
+    )
+    
+    # Append final lap audio
+    files.append(
+      AudioFileParser(
+        infile=args.wav_file,
+        outfile=brstm_file_f,
+        speed_increase=args.fspeed,
+        db_increase=args.db_increase,
+        cut_offset_start=args.fcut_start or args.cut_start,
+        cut_offset_end=args.fcut_end or args.fcut_end,
+        channels=channels,
+        brstm_patch_value=args.brstm_patch
+      )
+    )
+      
+  # Misc (normal)
+  elif args.track in misc_mapping:
+    # Get the outfile name (no ending since wav and brstm are needed)
+    misc_file = misc_mapping.get(args.track)
+        
+    # Determine channels using the mapping
+    channels = channel_mapping.get(args.track, 2)
+    
+    # Append normal lap audio
+    files.append(
+      AudioFileParser(
+        infile=args.wav_file,
+        outfile=misc_file,
+        speed_increase=args.speed,
         db_increase=args.db_increase,
         cut_offset_start=args.cut_start,
         cut_offset_end=args.cut_end,
@@ -58,7 +83,13 @@ def run(container: list, args: argparse.Namespace) -> None:
       )
     )
   
+  # Not available
+  else:
+    raise KeyError(f"Given track {args.track} does not exist!")
+  
   for audio_parser in files:
+    print(audio_parser.temp_wav_outfile)
+    # Convert audio
     audio_parser.convert()
 
 def main() -> None:
@@ -71,18 +102,17 @@ def main() -> None:
   parser.add_argument('--db_increase', type=float, default=0.0, help='Increase of db for the wav/brstm', required=False)
   parser.add_argument('--cut_start', type=float, help='Time in seconds where to start [from frame 0]', required=False)
   parser.add_argument('--cut_end', type=float, help='Time in seconds where to end [from frame 0]', required=False)
+  parser.add_argument('--speed', type=float, default=1, help='Speed increase of normal lap', required=False)
+  parser.add_argument('--fcut_start', type=float, help='Time in seconds where to start (final lap) [from frame 0]', required=False)
+  parser.add_argument('--fcut_end', type=float, help='Time in seconds where to end (final lap) [from frame 0]', required=False)
+  parser.add_argument('--fspeed', type=float, default=1, help='Speed increase of final lap', required=False)
   parser.add_argument('--brstm_patch', type=int, default=100, help='Brstm volume value patch [0 - 127]', required=False)
   
   # Parse arguments defined
   args = parser.parse_args()
   
-  container = list()
-  run(container, args)
+  run(args)
   
-  
-  
-
-
 if __name__ == '__main__':
   main()
   

@@ -1,8 +1,6 @@
-import os
-import shutil
 import pathlib
 
-from pydub import AudioSegment
+from pydub import AudioSegment, effects
 
 class AudioFileParser:
   
@@ -21,8 +19,9 @@ class AudioFileParser:
                brstm_patch_value: int = 100
   ) -> None:
     self.infile = pathlib.Path(infile).absolute()
-    self.outfile = outfile
-    
+    self.brstm_outfile = f"{outfile}.brstm"
+    self.temp_wav_outfile = f"{outfile}.wav"
+        
     self.speed_increase = speed_increase
     self.db_increase = db_increase
     self.cut_offset_start = cut_offset_start
@@ -51,10 +50,14 @@ class AudioFileParser:
     
     # Define end offset
     if self.cut_offset_end:
-      slice_offset_end = int(self.cut_offset_start * 1000)
+      slice_offset_end = int(self.cut_offset_end * 1000)
     
     # Slice / Cut audio
     cut_audio = audio[slice_offset_start:slice_offset_end]
+        
+    # Speed up audio
+    if self.speed_increase != 1:
+      cut_audio = effects.speedup(cut_audio, self.speed_increase)
     
     # Check if channels are default value
     if self.channels > 2:
@@ -63,7 +66,8 @@ class AudioFileParser:
       
       # Define empty container with channels to fill
       multi_channels: AudioSegment = []
-      # Iter the amount of channels needed (divided by 2 since left and right)
+      # Iter the amount of channels needed (divided by 2 since left and right - stereo)
+      # For example (4 channels): 1 = left, 2 = right, 3 left, 4 = right
       for _ in range(0, int(self.channels / 2)):
         # Add channels to list
         multi_channels += stereo_channels
@@ -72,7 +76,7 @@ class AudioFileParser:
       cut_audio = AudioSegment.from_mono_audiosegments(*multi_channels)
     
     # Export the edited wave file - ToDo: Remove debug name
-    cut_audio.export("./exported_infile.wav", format="wav")
+    cut_audio.export(self.temp_wav_outfile, format="wav")
   
   def convert(self) -> None:
     self.apply_config_to_wav()
