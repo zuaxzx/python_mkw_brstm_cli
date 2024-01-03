@@ -1,4 +1,6 @@
 import pathlib
+import subprocess
+import os
 
 from pydub import AudioSegment, effects
 
@@ -33,7 +35,7 @@ class AudioFileParser:
     self.channels = channels    
     self.brstm_patch_value = brstm_patch_value
   
-  def apply_config_to_wav(self) -> None:
+  def apply_config_to_wav(self, temp_wav_outfile) -> None:
     audio: AudioSegment = AudioSegment.from_file(self.infile, format="wav")
     
     # Apply db gain
@@ -76,12 +78,22 @@ class AudioFileParser:
       cut_audio = AudioSegment.from_mono_audiosegments(*multi_channels)
     
     # Export the edited wave file - ToDo: Remove debug name
-    cut_audio.export(self.temp_wav_outfile, format="wav")
+    cut_audio.export(temp_wav_outfile, format="wav")
   
-  def convert(self) -> None:
-    self.apply_config_to_wav()
+  def convert(self, out_dir: str, temp_dir: str) -> None:
+    os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(temp_dir, exist_ok=True)
+    
+    temp_wav_outfile = pathlib.Path(temp_dir).joinpath(os.path.basename(self.temp_wav_outfile))
+    brstm_outfile = pathlib.Path(out_dir).joinpath(os.path.basename(self.brstm_outfile))
+    
+    # ToDo: Implement logger instead
+    print("Generating [temp]:", temp_wav_outfile)
+    self.apply_config_to_wav(temp_wav_outfile)
+    
+    # Define outfile
+    print("Generating:", brstm_outfile)
+    cmd = ["VGAudioCli", "-c", "-i", temp_wav_outfile, "-o", brstm_outfile]
     
     # convert temp file to brstm
-    
-    # delete temp file
-  
+    subprocess.check_output(cmd)

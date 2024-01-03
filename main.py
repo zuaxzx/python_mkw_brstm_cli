@@ -19,19 +19,24 @@ def run(args: argparse.Namespace) -> None:
   channel_mapping = config_parser.get("tracks.multi_channel", dict)
   
   # Get the track abrev for normal and final lap
-  normal_track_abrev = config_parser.get("tracks.abrev.normal")
-  final_track_abrev = config_parser.get("tracks.abrev.final")
+  normal_track_abrev: str = config_parser.get("tracks.abrev.normal")
+  final_track_abrev: str = config_parser.get("tracks.abrev.final")
   
   files: list[AudioFileParser] = []
   
   # Track (normal and final)
   if args.track in track_mapping:
-    # Get the outfile name (no ending since wav and brstm are needed)
-    brstm_file_n = track_mapping.get(args.track).replace('*', normal_track_abrev)
-    brstm_file_f = track_mapping.get(args.track).replace('*', final_track_abrev)
     
     # Determine channels using the mapping
     channels = channel_mapping.get(args.track, 2)
+    
+    if channels > 2:
+      normal_track_abrev = normal_track_abrev.upper()
+      final_track_abrev = final_track_abrev.upper()
+    
+    # Get the outfile name (no ending since wav and brstm are needed)
+    brstm_file_n = track_mapping.get(args.track).replace('*', normal_track_abrev)
+    brstm_file_f = track_mapping.get(args.track).replace('*', final_track_abrev)
     
     # Append normal lap audio
     files.append(
@@ -63,11 +68,11 @@ def run(args: argparse.Namespace) -> None:
       
   # Misc (normal)
   elif args.track in misc_mapping:
-    # Get the outfile name (no ending since wav and brstm are needed)
-    misc_file = misc_mapping.get(args.track)
-        
     # Determine channels using the mapping
     channels = channel_mapping.get(args.track, 2)
+    
+    # Get the outfile name (no ending since wav and brstm are needed)
+    misc_file = misc_mapping.get(args.track)
     
     # Append normal lap audio
     files.append(
@@ -87,10 +92,11 @@ def run(args: argparse.Namespace) -> None:
   else:
     raise KeyError(f"Given track {args.track} does not exist!")
   
+  out_dir = config_parser.get("output.dir")
+  temp_dir = config_parser.get("output.temp_dir")
   for audio_parser in files:
-    print(audio_parser.temp_wav_outfile)
     # Convert audio
-    audio_parser.convert()
+    audio_parser.convert(out_dir, temp_dir)
 
 def main() -> None:
   # Define arguments using the Argument parser

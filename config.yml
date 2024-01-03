@@ -1,7 +1,6 @@
-# Tool dependencies path
-tools:
-  vg_audio_cli: ./tools/VGAudioCli.exe
-  brstm_patcher: ./tools/QuickBRSTMPatcher.exe
+output:
+  dir: ./output
+  temp_dir: ./output/temp
 
 tracks:
   # Abreviations for brstm track names
@@ -11,12 +10,69 @@ tracks:
   
   # Outfile mapping of all tracks
   brstm_track_mapping: {
-    "lc": "n_circuit32_*"
+    "lc": "n_circuit32_*",
+    "mmm": "n_farm_*",
+    "mg": "n_kinoko_*",
+    "tf": "STRM_N_FACTORY_*",
+    # Note: Same as lc
+    "mc": "n_circuit32_*",
+    "cm": "n_shopping32*",
+    "dks": "n_snowboard32_*",
+    "wgm": "STRM_N_TRUCK_*",
+    "dc": "n_daisy32_*",
+    "kc": "STRM_N_WATER_*",
+    "mt": "n_maple_*",
+    "gv": "n_volcano32_*",
+    "ddr": "STRM_N_DESERT_*",
+    "mh": "STRM_N_RIDGEHIGHWAY_*",
+    "bcwii": "STRM_N_KOOPA_*",
+    "rr": "n_rainbow32_*",
+    "rpb": "r_gc_beach32_*",
+    "ryf": "r_ds_jungle32_*",
+    "gv2": "r_sfc_obake32_*",
+    "rmr": "r_64_circuit32_*",
+    "rsl": "r_64_sherbet32_*",
+    "sgb": "r_agb_beach32_*",
+    "rds": "r_ds_town32_*",
+    "rws": "r_gc_stadium32_*",
+    "rdh": "r_ds_desert32_*",
+    "bc3": "r_agb_kuppa32_*",
+    "dkjp": "r_64_jungle32_*",
+    "rmc": "r_gc_circuit32_*",
+    "mc3": "r_sfc_circuit32_*",
+    "rpg": "r_ds_garden32_*",
+    "dkm": "r_gc_mountain32_*",
+    "rbc": "r_64_kuppa32_*",
+    "delfino-pier": "n_venice_*",
+    "funky-stadium": "n_skate_*",
+    "n64-skyscraper": "r_64_battle_*",
+    "gba-battle-course-3": "r_agb_battle_*",
+    "ds-twilight-house": "r_DS_battle_*",
+    "snes-battle-course-4": "r_sfc_battle_*",
+    "block-plaza": "n_block_*",
+    "chainchomp-roulette": "n_casino_*",
+    "gcn-cookieland": "r_GC_Battle32_*",
+    "thwomp-desert": "n_ryuusa_*"
   }
 
   # Outfile mapping of all misc sounds
   brstm_misc_mapping: {
-
+    "finish-first": "o_FanfareGP1_32",
+    "finish-first-race": "o_FanfareGP1_only32",
+    "finish-mid": "o_FanfareGP2_32",
+    "finish-mid-race": "o_FanfareGP2_only32",
+    "finish-bad": "o_FanfareGPdame_32",
+    "finish-bad-race": "o_FanfareGPdame_only32",
+    "victory-timetrails": "o_FanfareMIwin_32",
+    "victory-race-timetrails": "o_FanfareMIwin_only32",
+    "start-engine-timetrail": "o_Start2_32_fan",
+    "start-engine-race": "o_Start32_fan",
+    "wifi-waiting-replay": "o_Wi-Fi_waiting32",
+    "race-intro": "o_Crs_In_Fan",
+    "race-intro-battle": "o_Crs_In_Fan_battle",
+    "race-intro-wifi": "o_Crs_In_Fan_Wifi",
+    "options": "o_ Option_32",
+    "galaxy-colosseum": "n_BossMI"
   }
 
   # List of multi channel tracks
