@@ -2,6 +2,8 @@ import pathlib
 import subprocess
 import os
 
+from brstm_patcher import patch_brstm
+
 from pydub import AudioSegment, effects
 
 class AudioFileParser:
@@ -18,7 +20,7 @@ class AudioFileParser:
                cut_offset_end: float or None = 0,
                channels: int = 2,
                # Not used for now - 8 bit signed value 
-               brstm_patch_value: int = 100
+               brstm_patch_value: int = 0
   ) -> None:
     self.infile = pathlib.Path(infile).absolute()
     self.brstm_outfile = f"{outfile}.brstm"
@@ -94,6 +96,11 @@ class AudioFileParser:
     # Define outfile
     print("Generating:", brstm_outfile)
     cmd = ["VGAudioCli", "-c", "-i", temp_wav_outfile, "-o", brstm_outfile]
+    
+    if self.brstm_patch_value:
+      print("Apply brstm patch...")
+      patch_brstm(brstm_outfile, self.brstm_patch_value)
+      print("Done!")
     
     # convert temp file to brstm
     subprocess.check_output(cmd)
