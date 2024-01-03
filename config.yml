@@ -20,6 +20,11 @@ tracks:
   }
 
   # List of multi channel tracks
-  multi_channel: [
-    "bcwii"
-  ]
+  multi_channel: {
+    "tf": 4,
+    "wgm": 4,
+    "kc": 8,
+    "ddr": 4,
+    "mh": 4,
+    "bcwii" : 8
+  }
