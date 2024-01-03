@@ -61,6 +61,7 @@ class AudioFileParser:
         
     # Speed up audio
     if self.speed_increase != 1:
+      # This seems to be very slow atm
       cut_audio = effects.speedup(cut_audio, self.speed_increase)
     
     # Check if channels are default value
@@ -97,10 +98,10 @@ class AudioFileParser:
     print("Generating:", brstm_outfile)
     cmd = ["VGAudioCli", "-c", "-i", temp_wav_outfile, "-o", brstm_outfile]
     
+    # convert temp file to brstm
+    subprocess.check_output(cmd)
+    
     if self.brstm_patch_value:
       print("Apply brstm patch...")
       patch_brstm(brstm_outfile, self.brstm_patch_value)
       print("Done!")
-    
-    # convert temp file to brstm
-    subprocess.check_output(cmd)
