@@ -10,8 +10,15 @@ Will also add effects to the wav using pydub including:
 - Speed change
 - Audio cut
 
+## Usage
+
+```shell
+python main.py <track> <url/wav> <--options>
+```
+Note: For track see ``config.yml``
+
 ## Dependencies
 
 - Python requirements.txt
-- ffmpeg (Dependency of pydub)
-- VGAudioCli (Conversion to brstm)
+- ffmpeg (Dependency of pydub) in PATH
+- VGAudioCli (Conversion to brstm) in PATH
