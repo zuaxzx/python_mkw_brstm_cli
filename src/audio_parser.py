@@ -2,7 +2,7 @@ import pathlib
 import subprocess
 import os
 
-from brstm_patcher import patch_brstm
+from .brstm_patcher import patch_brstm
 
 from pydub import AudioSegment, effects
 

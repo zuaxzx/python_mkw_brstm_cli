@@ -1,4 +1,6 @@
 output
+dist
+build
 __pycache__
 *.wav
 *.brstm

@@ -1,3 +1,7 @@
+tools:
+  audiovg:
+  ffmpeg:
+
 output:
   dir: ./output
   temp_dir: ./output/temp

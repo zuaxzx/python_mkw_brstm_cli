@@ -13,7 +13,7 @@ class ConfigParser:
     with open(self.file, "r") as f:
       self.yml_stream= yaml.safe_load(f)
       
-  def get(self, mpath: str, init_type: typing.Any = str) -> typing.Any:
+  def get(self, mpath: str, init_type: typing.Any = str, default: typing.Any = None) -> typing.Any:
     # mpath: "a.b.c"
     
     # All sections to parse in correct order
@@ -24,6 +24,10 @@ class ConfigParser:
     # Parse data recursively
     for section in sections:
       item = item.get(section)
-        
+    
+    # Default value
+    if not item:
+      return default
+    
     # Return initialized item
     return init_type(item)
