@@ -5,6 +5,7 @@ from src.config_parser import ConfigParser
 from src.yt_download import convert_mp4_to_wav, dl_mp4_from_yt
 from src.audio_parser import AudioFileParser
 from src.config import init_config, GeneralConfiguration
+from src.brstm_patcher import patch_brstm
 
 def append_files(wav_file: str, args: argparse.Namespace, files: list[AudioFileParser], config: GeneralConfiguration) -> None:
 
@@ -104,8 +105,8 @@ def convert_to_brstm(args: argparse.Namespace) -> None:
     # Convert audio
     audio_parser.convert(config.out_dir, config.temp_dir)
 
-def patch_brstm(args: argparse.Namespace) -> None:
-  print("PATCH")
+def brstm_patch(args: argparse.Namespace) -> None:
+  patch_brstm(args.brstm_file, args.brstm_patch)
 
 def main() -> None:
   # Define arguments using the Argument parser
@@ -130,9 +131,9 @@ def main() -> None:
   parser_convert.add_argument('--brstm_patch', type=int, default=100, help='Brstm volume value patch [0 - 127]', required=False)
   parser_convert.set_defaults(func=convert_to_brstm)
   
-  parser_patch.add_argument('audio', type=str, help='Input wav file or youtube url')
+  parser_patch.add_argument('brstm_file', type=str, help='BRSTM file to patch')
   parser_patch.add_argument('brstm_patch', type=int, default=100, help='Brstm volume value patch [0 - 127]')
-  parser_patch.set_defaults(func=patch_brstm)
+  parser_patch.set_defaults(func=brstm_patch)
   
   # Parse arguments defined
   args = parser.parse_args()
